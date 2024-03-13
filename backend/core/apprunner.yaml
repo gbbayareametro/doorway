@@ -16,7 +16,10 @@ build:
       - yarn build
       - yarn db:migration:run
 run:
-      - yarn start
+      command: yarn start
+      network:
+        port: 3001
+
 
 
 

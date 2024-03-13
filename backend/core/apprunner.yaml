@@ -3,17 +3,20 @@ runtime: nodejs18
 build:
   commands:
     pre-build:
-      - yarn install
+
       - export DESCRIBE_DB_JSON=$(aws rds describe-db-clusters --db-cluster-id ${DATABASE_ID})
       - export PGHOST=$(echo ${DESCRIBE_DB_JSON}|jq -r .DBClusters[0].Endpoint)
-      - export PGPORT=$(echo ${DESCRIBE_DB_JSON}|jq -r .DBClusters[0].Port"
+      - export PGPORT=$(echo ${DESCRIBE_DB_JSON}|jq -r .DBClusters[0].Port)
       - export DB_SECRET_ARN=$(echo $DESCRIBE_DB_JSON|jq -r .DBClusters[0].MasterUserSecret.SecretArn)
-      - export PGUSER="$(aws secretsmanager get-secret-value --secret-id ${DB_SECRET_ARN}|jq -r .SecretString|jq -r .username)"
-      - export PGPASSWORD="$(aws secretsmanager get-secret-value --secret-id ${DB_SECRET_ARN}|jq -r .SecretString.password")
+      - export PGUSER=$(aws secretsmanager get-secret-value --secret-id ${DB_SECRET_ARN}|jq -r .SecretString.username)
+      - export PGPASSWORD=$(aws secretsmanager get-secret-value --secret-id ${DB_SECRET_ARN}|jq -r .SecretString.password)
       - export DATABASE_URL = "postgresql://${PGUSER}@${PGHOST}:${PGPORT}/${PGDATABASE}"
+
     build:
-      - yarn build
       - yarn db:migration:run
+      - yarn install
+      - yarn build
+
 run:
   command: yarn start
   network:

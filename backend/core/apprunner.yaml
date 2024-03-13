@@ -3,7 +3,6 @@ runtime: nodejs18
 build:
   commands:
     pre-build:
-      - npm install -G yarn
       - yarn install
       - export DESCRIBE_DB_JSON=$(aws rds describe-db-clusters --db-cluster-id ${DATABASE_ID})
       - export PGHOST=$(echo ${DESCRIBE_DB_JSON}|jq -r .DBClusters[0].Endpoint)
